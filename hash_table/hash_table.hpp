@@ -36,6 +36,7 @@ void Hash_table<Key, Value>::insert(Key key, Value val) {
         for (auto it : buck) {
             if(it.first == key) {
                 it.second = val;
+                return;
             }
         
     }
@@ -95,6 +96,7 @@ Value Hash_table<Key, Value>::operator[](const Key& key) {
 
 template<typename Key, typename Value>
 Hash_table<Key, Value>::Hash_table(const Hash_table& obj) {
+    if (*this->buckets == obj.buckets) {return;}
     this->buckets.resize(obj.buckets.size());
     for (int i = 0; i < obj.buckets.size(); i++) {
         this->buckets[i] = obj.buckets[i];
@@ -104,11 +106,37 @@ Hash_table<Key, Value>::Hash_table(const Hash_table& obj) {
 };
 
 template<typename Key, typename Value>
-Value Hash_table<Key, Value>::operator=(const Hash_table& obj) {
-  this->buckets.resize(obj.buckets.size());
-    for (int i = 0; i < obj.buckets.size(); i++) {
+Hash_table<Key, Value>& Hash_table<Key, Value>::operator=(const Hash_table& obj) {
+    if (*this->buckets == obj.buckets) {return;}
+    this->buckets.resize(obj.buckets.size());
+    for (int i = 0; i < obj.num_buckets; i++) {
         this->buckets[i] = obj.buckets[i];
     }
     this->num_buckets = obj.num_buckets;
     this->num_elem = obj.num_elem;
+    return *this;
+}
+template<typename Key, typename Value>
+Hash_table<Key, Value>& Hash_table<Key, Value>::operator=(Hash_table&& obj) {
+    this->buckets = std::move(obj.buckets);
+    this->num_buckets = obj.num_buckets;
+    this->num_elem = obj.num_elem;
+    obj.num_buckets = 0;
+    obj.num_elem = 0;
+    return *this;
+}
+template<typename Key, typename Value> 
+void Hash_table<Key, Value>::clear() {
+    for(int i = 0; i < num_buckets; i ++) {
+        
+        buckets[i].clear();
+    }
+    num_buckets = 0;
+    num_elem = 0;
+}   
+template<typename Key, typename Value> 
+Hash_table<Key, Value>::Hash_table(Hash_table&& obj) {
+    this->buckets = std::move(obj.buckets);
+    num_buckets = obj.num_buckets;
+    num_elem = obj.num_elem;
 }
